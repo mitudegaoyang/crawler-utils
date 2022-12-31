@@ -389,21 +389,41 @@ let formatDouban = function (res, data) {
         .attr('src')
         ?.split(/\/public\/p|.jpg/)[1] +
       '.jpg';
-    json.douban = $('.rating_self .rating_num').text();
-    json.douban_user = $('.rating_self .rating_right .rating_sum span').text();
+    json.douban = $('.rating_self .rating_num').text() || '0';
+    json.douban_user = $('.rating_self .rating_right .rating_sum span').text() || '0';
     json.imdb_id = $('#info')
       .text()
       .replace(/\s*/g, '')
-      .match(/IMDb:tt[\d]*/g)[0]
-      .replace(/IMDb:/g, '');
+      .match(/IMDb:tt[\d]*/g)
+      ? $('#info')
+          .text()
+          .replace(/\s*/g, '')
+          .match(/IMDb:tt[\d]*/g)[0]
+          .replace(/IMDb:/g, '')
+      : '';
     json.name = $('h1').text().replace(/\s*/g, '');
+    json.release = $('#info')
+      .text()
+      .replace(/\s*/g, '')
+      .match(/上映日期:[\s|\S]*片长:/g)
+      ? $('#info')
+          .text()
+          .replace(/\s*/g, '')
+          .match(/上映日期:[\s|\S]*片长:/g)[0]
+          .replace(/上映日期:|片长:/g, '')
+      : '';
   } else {
-    json.imdb = $('.ipc-page-section .iBtAhY .sc-7ab21ed2-1').text();
-    json.imdb_user = $('.ipc-page-section .iBtAhY .sc-7ab21ed2-3').text();
-    if (json.imdb_user.indexOf('K') != -1) {
-      json.imdb_user = (json.imdb_user.replace(/K/g, '') * 1000).toString();
-    } else if (json.imdb_user.indexOf('M') != -1) {
-      json.imdb_user = (json.imdb_user.replace(/M/g, '') * 1000000).toString();
+    if ($) {
+      json.imdb = $('.ipc-page-section .iBtAhY .sc-7ab21ed2-1').text();
+      json.imdb_user = $('.ipc-page-section .iBtAhY .sc-7ab21ed2-3').text() || '0';
+      if (json.imdb_user.indexOf('K') != -1) {
+        json.imdb_user = (json.imdb_user.replace(/K/g, '') * 1000).toString() || '0';
+      } else if (json.imdb_user.indexOf('M') != -1) {
+        json.imdb_user = (json.imdb_user.replace(/M/g, '') * 1000000).toString() || '0';
+      }
+    } else {
+      json.imdb = '';
+      json.imdb_user = '';
     }
   }
   return json;

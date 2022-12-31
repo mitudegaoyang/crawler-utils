@@ -27,7 +27,34 @@ let c = new Crawler({
           douban_id: doubanId.toString()
         };
         data = format.formatDouban(res, json);
-        c.queue([`${imdb}${data.imdb_id}/`]);
+        if (data.imdb_id) {
+          c.queue([`${imdb}${data.imdb_id}/`]);
+        } else {
+          let json = {
+            img: data.img,
+            imdb_id: '',
+            imdb: '',
+            imdb_user: '',
+            douban_id: data.douban_id,
+            douban: data.douban,
+            douban_user: data.douban_user,
+            release: data.release,
+            category: '-----------',
+            name: data.name
+          };
+          // 当爬取完毕输出
+          let text = JSON.stringify(json);
+          // 指定要创建的目录和文件名称 __dirname为执行当前js文件的目录
+          let file = path.join(__dirname + '/json', 'data.json');
+          //写入文件
+          fs.writeFile(file, text, function (err) {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log('文件创建成功~' + file);
+            }
+          });
+        }
       } else {
         let jsonTemp = format.formatDouban(res, data);
         let json = {
@@ -38,6 +65,7 @@ let c = new Crawler({
           douban_id: jsonTemp.douban_id,
           douban: jsonTemp.douban,
           douban_user: jsonTemp.douban_user,
+          release: jsonTemp.release,
           category: '-----------',
           name: jsonTemp.name
         };
@@ -70,7 +98,7 @@ let c = new Crawler({
 let imdb = 'https://www.imdb.com/title/';
 let douban = 'https://movie.douban.com/subject/';
 
-let doubanId = 26698676;
+let doubanId = 3614963;
 let urls = [`${douban}${doubanId}/`];
 
 c.queue(urls);
