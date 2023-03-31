@@ -185,6 +185,18 @@ let formatDetails = function (res) {
           .split('/10')[1]
           .replace(/from|users|,|，/g, '')
       : '';
+  // 上映日期
+  json.release = !!$('#Zoom span')
+    .text()
+    .replace(/\s*/g, '')
+    .match(/◎上映日期[\s\S]*[◎]/g)
+    ? $('#Zoom span')
+        .text()
+        .replace(/\s*/g, '')
+        .match(/◎上映日期[\s\S]*[◎]/g)[0]
+        .split('◎')[1]
+        .replace(/上映日期/g, '')
+    : '';
   // 类别
   json.category = !!$('#Zoom span')
     .text()
@@ -279,18 +291,6 @@ let formatDetails = function (res) {
         .split('◎')[1]
         .replace(/字幕/g, '')
     : '';
-  // 上映日期
-  json.release = !!$('#Zoom span')
-    .text()
-    .replace(/\s*/g, '')
-    .match(/◎上映日期[\s\S]*[◎]/g)
-    ? $('#Zoom span')
-        .text()
-        .replace(/\s*/g, '')
-        .match(/◎上映日期[\s\S]*[◎]/g)[0]
-        .split('◎')[1]
-        .replace(/上映日期/g, '')
-    : '';
   // 片长
   json.time = !!$('#Zoom span')
     .text()
@@ -366,13 +366,20 @@ let formatDetails = function (res) {
   json.introduction = !!$('#Zoom span')
     .text()
     .replace(/\s*/g, '')
-    .match(/◎[简介|簡介|剧情][\s\S]*[下载地址|磁力链|ftp|下载地址|.2022.]/g)[0]
+    .match(
+      /◎(?:简介|簡介|剧情)[\s\S]*?(?:下载地址|磁力链|ftp|下载地址|迅雷专用链点击|\.2022\.|\.2023\.)/g
+    )[0]
     ? $('#Zoom span')
         .text()
         .replace(/\s*/g, '')
-        .match(/◎[简介|簡介|剧情][\s\S]*[下载地址|磁力链|ftp|下载地址|.2022.]/g)[0]
+        .match(
+          /◎(?:简介|簡介|剧情)[\s\S]*?(?:下载地址|磁力链|ftp|下载地址|迅雷专用链点击|\.2022\.|\.2023\.)/g
+        )[0]
         .split('◎')[1]
-        .replace(/简介|簡介|剧情|【下载地址|磁力链|ftp|下载地址|.2022./g, '')
+        .replace(
+          /简介|簡介|剧情|【下载地址|磁力链|ftp|下载地址|迅雷专用链点击|\.2022\.|\.2023\./g,
+          ''
+        )
     : '';
   return json;
 };
@@ -405,17 +412,63 @@ let formatDouban = function (res, data) {
     json.release = $('#info')
       .text()
       .replace(/\s*/g, '')
-      .match(/上映日期:[\s|\S]*片长:/g)
+      .match(/(上映日期:|首播:)[\s|\S]*?(片长:|又名:|IMDb:|集数:|季数:)/g)
       ? $('#info')
           .text()
           .replace(/\s*/g, '')
-          .match(/上映日期:[\s|\S]*片长:/g)[0]
-          .replace(/上映日期:|片长:/g, '')
+          .match(/(上映日期:|首播:)[\s|\S]*?(片长:|又名:|IMDb:|集数:|季数:)/g)[0]
+          .replace(/上映日期:|首播:|片长:|又名:|IMDb:|集数:|季数:/g, '')
+      : '';
+    json.director = $('#info')
+      .text()
+      .replace(/\s*/g, '')
+      .match(/导演:[\s|\S]*?(编剧:|主演:|类型:)/g)
+      ? $('#info')
+          .text()
+          .replace(/\s*/g, '')
+          .match(/导演:[\s|\S]*?(编剧:|主演:|类型:)/g)[0]
+          .replace(/导演:|编剧:|主演:|类型:/g, '')
+      : '';
+    json.writers = $('#info')
+      .text()
+      .replace(/\s*/g, '')
+      .match(/编剧:[\s|\S]*?(主演:|类型:)/g)
+      ? $('#info')
+          .text()
+          .replace(/\s*/g, '')
+          .match(/编剧:[\s|\S]*?(主演:|类型:)/g)[0]
+          .replace(/编剧:|主演:|类型:/g, '')
+      : '';
+    json.actor = $('#info')
+      .text()
+      .replace(/\s*/g, '')
+      .match(/主演:[\s|\S]*类型:/g)
+      ? $('#info')
+          .text()
+          .replace(/\s*/g, '')
+          .match(/主演:[\s|\S]*类型:/g)[0]
+          .replace(/主演:|类型:/g, '')
+      : '';
+    json.category = $('#info')
+      .text()
+      .replace(/\s*/g, '')
+      .match(/类型:[\s|\S]*?(官方网站:|制片国家\/地区:)/g)
+      ? $('#info')
+          .text()
+          .replace(/\s*/g, '')
+          .match(/类型:[\s|\S]*?(官方网站:|制片国家\/地区:)/g)[0]
+          .replace(/类型:|官方网站:|制片国家\/地区:/g, '')
       : '';
   } else {
     if ($) {
-      json.imdb = $('.ipc-page-section .iBtAhY .sc-7ab21ed2-1').text();
-      json.imdb_user = $('.ipc-page-section .iBtAhY .sc-7ab21ed2-3').text() || '0';
+      json.imdb =
+        $(
+          '.ipc-page-wrapper .rating-bar__base-button:nth-child(1) a span div div:nth-child(2) div span:nth-child(1)'
+        ).html() || '0';
+      json.imdb_user =
+        $(
+          '.ipc-page-wrapper .rating-bar__base-button a span div div:nth-child(2) div:nth-child(3)'
+        ).html() || '0';
       if (json.imdb_user.indexOf('K') != -1) {
         json.imdb_user = (json.imdb_user.replace(/K/g, '') * 1000).toString() || '0';
       } else if (json.imdb_user.indexOf('M') != -1) {

@@ -57,8 +57,10 @@ let urls = [];
 for (var i = start; i < num + 1; i++) {
   let item = {};
   item.key = i;
-  // item.uri = host + '/html/gndy/dyzz/list_23_' + i + '.html';
-  item.uri = host + '/html/gndy/jddy/list_63_' + i + '.html';
+  // new
+  item.uri = host + '/html/gndy/dyzz/list_23_' + i + '.html';
+  // other
+  // item.uri = host + '/html/gndy/jddy/list_63_' + i + '.html';
   urls.push(item);
 }
 c.queue(urls);

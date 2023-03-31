@@ -16,6 +16,7 @@ let c = new Crawler({
   // 在每个请求处理完毕后将调用此回调函数
   callback: function (error, res, done) {
     if (error) {
+      // writeFile(data);
       console.log(error);
       console.log(`错误条目${res.options.title}%`);
     } else {
@@ -30,57 +31,59 @@ let c = new Crawler({
         if (data.imdb_id) {
           c.queue([`${imdb}${data.imdb_id}/`]);
         } else {
-          let json = {
-            img: data.img,
-            imdb_id: '',
-            imdb: '',
-            imdb_user: '',
-            douban_id: data.douban_id,
-            douban: data.douban,
-            douban_user: data.douban_user,
-            release: data.release,
-            category: '-----------',
-            name: data.name
-          };
-          // 当爬取完毕输出
-          let text = JSON.stringify(json);
-          // 指定要创建的目录和文件名称 __dirname为执行当前js文件的目录
-          let file = path.join(__dirname + '/json', 'data.json');
-          //写入文件
-          fs.writeFile(file, text, function (err) {
-            if (err) {
-              console.log(err);
-            } else {
-              console.log('文件创建成功~' + file);
-            }
-          });
+          writeFile(data);
+          // let json = {
+          //   img: data.img,
+          //   imdb_id: '',
+          //   imdb: '',
+          //   imdb_user: '',
+          //   douban_id: data.douban_id,
+          //   douban: data.douban,
+          //   douban_user: data.douban_user,
+          //   release: data.release,
+          //   category: '-----------',
+          //   name: data.name
+          // };
+          // // 当爬取完毕输出
+          // let text = JSON.stringify(json);
+          // // 指定要创建的目录和文件名称 __dirname为执行当前js文件的目录
+          // let file = path.join(__dirname + '/json', 'data.json');
+          // //写入文件
+          // fs.writeFile(file, text, function (err) {
+          //   if (err) {
+          //     console.log(err);
+          //   } else {
+          //     console.log('文件创建成功~' + file);
+          //   }
+          // });
         }
       } else {
         let jsonTemp = format.formatDouban(res, data);
-        let json = {
-          img: jsonTemp.img,
-          imdb_id: jsonTemp.imdb_id,
-          imdb: jsonTemp.imdb,
-          imdb_user: jsonTemp.imdb_user,
-          douban_id: jsonTemp.douban_id,
-          douban: jsonTemp.douban,
-          douban_user: jsonTemp.douban_user,
-          release: jsonTemp.release,
-          category: '-----------',
-          name: jsonTemp.name
-        };
-        // 当爬取完毕输出
-        let text = JSON.stringify(json);
-        // 指定要创建的目录和文件名称 __dirname为执行当前js文件的目录
-        let file = path.join(__dirname + '/json', 'data.json');
-        //写入文件
-        fs.writeFile(file, text, function (err) {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log('文件创建成功~' + file);
-          }
-        });
+        writeFile(jsonTemp);
+        // let json = {
+        //   img: jsonTemp.img,
+        //   imdb_id: jsonTemp.imdb_id,
+        //   imdb: jsonTemp.imdb,
+        //   imdb_user: jsonTemp.imdb_user,
+        //   douban_id: jsonTemp.douban_id,
+        //   douban: jsonTemp.douban,
+        //   douban_user: jsonTemp.douban_user,
+        //   release: jsonTemp.release,
+        //   category: '-----------',
+        //   name: jsonTemp.name
+        // };
+        // // 当爬取完毕输出
+        // let text = JSON.stringify(json);
+        // // 指定要创建的目录和文件名称 __dirname为执行当前js文件的目录
+        // let file = path.join(__dirname + '/json', 'data.json');
+        // //写入文件
+        // fs.writeFile(file, text, function (err) {
+        //   if (err) {
+        //     console.log(err);
+        //   } else {
+        //     console.log('文件创建成功~' + file);
+        //   }
+        // });
       }
       // // 格式化json
       // datas = [...datas, ...json];
@@ -90,6 +93,37 @@ let c = new Crawler({
     done();
   }
 });
+
+let writeFile = (data) => {
+  let json = {
+    img: data.img,
+    imdb_id: data.imdb_id || '',
+    imdb: data.imdb || '',
+    imdb_user: data.imdb_user || '',
+    douban_id: data.douban_id,
+    douban: data.douban,
+    douban_user: data.douban_user,
+    release: data.release,
+    category: data.category,
+    director: data.director,
+    writers: data.writers,
+    actor: data.actor,
+    tag: '-----------',
+    name: data.name
+  };
+  // 当爬取完毕输出
+  let text = JSON.stringify(json);
+  // 指定要创建的目录和文件名称 __dirname为执行当前js文件的目录
+  let file = path.join(__dirname + '/json', 'data.json');
+  //写入文件
+  fs.writeFile(file, text, function (err) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('文件创建成功~' + file);
+    }
+  });
+};
 
 // 将一个URL加入请求队列，并使用默认回调函数
 // c.queue(urlList[num].url);
