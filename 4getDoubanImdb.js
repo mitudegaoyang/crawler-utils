@@ -96,6 +96,8 @@ let c = new Crawler({
 
 let writeFile = (data) => {
   let json = {
+    title: data.title,
+    line: '-----------',
     img: data.img,
     imdb_id: data.imdb_id || '',
     imdb: data.imdb || '',
@@ -105,11 +107,18 @@ let writeFile = (data) => {
     douban_user: data.douban_user,
     release: data.release,
     category: data.category,
+    translation: data.translation,
+    name: data.name,
+    year: data.year,
+    areas: data.areas,
+    language: data.language,
+    caption: '中英双字',
+    time: data.time,
     director: data.director,
     writers: data.writers,
     actor: data.actor,
-    tag: '-----------',
-    name: data.name
+    tag: '',
+    introduction: data.introduction
   };
   // 当爬取完毕输出
   let text = JSON.stringify(json);
@@ -132,13 +141,15 @@ let writeFile = (data) => {
 let imdb = 'https://www.imdb.com/title/';
 let douban = 'https://movie.douban.com/subject/';
 
-let doubanId = 3614963;
+let doubanId = 1292223;
 let urls = [`${douban}${doubanId}/`];
 
 c.queue(urls);
 
 // let url = base64.ThunderEncode("ftp");
 // console.log(url)
+
+// 神秘|体育|奇幻|卡通
 
 // 将多个URL加入请求队列
 // c.queue(['http://www.google.com/', 'http://www.yahoo.com']);

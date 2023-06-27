@@ -367,17 +367,17 @@ let formatDetails = function (res) {
     .text()
     .replace(/\s*/g, '')
     .match(
-      /◎(?:简介|簡介|剧情)[\s\S]*?(?:下载地址|磁力链|ftp|下载地址|迅雷专用链点击|\.2022\.|\.2023\.)/g
+      /◎(?:简介|簡介|剧情)[\s\S]*?(?:下载地址|磁力链|ftp|下载地址|迅雷专用链点击|点击下载|\.2022\.|\.2023\.)/g
     )[0]
     ? $('#Zoom span')
         .text()
         .replace(/\s*/g, '')
         .match(
-          /◎(?:简介|簡介|剧情)[\s\S]*?(?:下载地址|磁力链|ftp|下载地址|迅雷专用链点击|\.2022\.|\.2023\.)/g
+          /◎(?:简介|簡介|剧情)[\s\S]*?(?:下载地址|磁力链|ftp|下载地址|迅雷专用链点击|点击下载|\.2022\.|\.2023\.)/g
         )[0]
         .split('◎')[1]
         .replace(
-          /简介|簡介|剧情|【下载地址|磁力链|ftp|下载地址|迅雷专用链点击|\.2022\.|\.2023\./g,
+          /简介|簡介|剧情|【下载地址|磁力链|ftp|下载地址|迅雷专用链点击|点击下载|\.2022\.|\.2023\./g,
           ''
         )
     : '';
@@ -408,7 +408,12 @@ let formatDouban = function (res, data) {
           .match(/IMDb:tt[\d]*/g)[0]
           .replace(/IMDb:/g, '')
       : '';
-    json.name = $('h1').text().replace(/\s*/g, '');
+    json.name = $('h1')
+      .text()
+      .replace(/\s*/g, '')
+      .match(/[\s|\S]*?(\()/g)[0]
+      .replace(/\(/g, '');
+    json.title = $('h1').text().replace(/\s*/g, '');
     json.release = $('#info')
       .text()
       .replace(/\s*/g, '')
@@ -418,6 +423,51 @@ let formatDouban = function (res, data) {
           .replace(/\s*/g, '')
           .match(/(上映日期:|首播:)[\s|\S]*?(片长:|又名:|IMDb:|集数:|季数:)/g)[0]
           .replace(/上映日期:|首播:|片长:|又名:|IMDb:|集数:|季数:/g, '')
+      : '';
+    json.translation = $('#info')
+      .text()
+      .replace(/\s*/g, '')
+      .match(/(又名:)[\s|\S]*?(IMDb:|集数:|季数:)/g)
+      ? $('#info')
+          .text()
+          .replace(/\s*/g, '')
+          .match(/(又名:)[\s|\S]*?(IMDb:|集数:|季数:)/g)[0]
+          .replace(/又名:|IMDb:|集数:|季数:/g, '')
+      : '';
+    json.year = $('h1')
+      .text()
+      .replace(/\s*/g, '')
+      .match(/(\()[\s|\S]*?(\))/g)[0]
+      .replace(/\(|\)/g, '');
+    json.areas = $('#info')
+      .text()
+      .replace(/\s*/g, '')
+      .match(/(制片国家\/地区:)[\s|\S]*?(语言:|上映日期:|片长:又名:|IMDb:|集数:|季数:)/g)
+      ? $('#info')
+          .text()
+          .replace(/\s*/g, '')
+          .match(/(制片国家\/地区:)[\s|\S]*?(语言:|上映日期:|片长:又名:|IMDb:|集数:|季数:)/g)[0]
+          .replace(/制片国家\/地区:|语言:|上映日期:|片长:又名:|IMDb:|集数:|季数:|分钟/g, '')
+      : '';
+    json.language = $('#info')
+      .text()
+      .replace(/\s*/g, '')
+      .match(/(语言:)[\s|\S]*?(上映日期:|片长:|又名:|IMDb:|集数:|季数:)/g)
+      ? $('#info')
+          .text()
+          .replace(/\s*/g, '')
+          .match(/(语言:)[\s|\S]*?(上映日期:|片长:|又名:|IMDb:|集数:|季数:)/g)[0]
+          .replace(/语言:|上映日期:|片长:|又名:|IMDb:|集数:|季数:|分钟/g, '')
+      : '';
+    json.time = $('#info')
+      .text()
+      .replace(/\s*/g, '')
+      .match(/(片长:)[\s|\S]*?(又名:|IMDb:|集数:|季数:)/g)
+      ? $('#info')
+          .text()
+          .replace(/\s*/g, '')
+          .match(/(片长:)[\s|\S]*?(又名:|IMDb:|集数:|季数:)/g)[0]
+          .replace(/片长:|又名:|IMDb:|集数:|季数:|分钟/g, '')
       : '';
     json.director = $('#info')
       .text()
@@ -459,6 +509,7 @@ let formatDouban = function (res, data) {
           .match(/类型:[\s|\S]*?(官方网站:|制片国家\/地区:)/g)[0]
           .replace(/类型:|官方网站:|制片国家\/地区:/g, '')
       : '';
+    json.introduction = $('#link-report-intra').text().replace(/\s*/g, '').replace(/©豆瓣/g, '');
   } else {
     if ($) {
       json.imdb =
