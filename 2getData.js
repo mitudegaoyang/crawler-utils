@@ -30,7 +30,7 @@ let c = new Crawler({
       let text = JSON.stringify(datas);
 
       // 指定要创建的目录和文件名称 __dirname为执行当前js文件的目录
-      let file = path.join(__dirname+'/json', 'movieList.json');
+      let file = path.join(__dirname + '/json', 'movieList.json');
 
       //写入文件
       fs.writeFile(file, text, function (err) {
@@ -60,7 +60,7 @@ for (var i = num; i < urlList.length; i++) {
     item.key = i + 1;
     item.uri = urlList[i].url;
     item.id = urlList[i].id;
-    item.title = urlList[i].title;
+    item.title = urlList[i].title.match(/(\《)[\s|\S]*?(\》)/g)[0].replace(/\《|\》/g, '');
     item.url = urlList[i].url;
     item.date = urlList[i].date;
     item.desc = urlList[i].desc;
