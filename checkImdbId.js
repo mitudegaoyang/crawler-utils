@@ -9,8 +9,10 @@ let getWordCnt = function (arr) {
   let arrData = arr;
   let obj = {};
   for (let i = 0; i < arrData.length; i++) {
-    var item = arrData[i].imdb_id;
-    obj[item] = obj[item] + 1 || 1;
+    if (!arrData[i].isRepeat && arrData[i].imdb_id) {
+      var item = arrData[i].imdb_id;
+      obj[item] = obj[item] + 1 || 1;
+    }
   }
   let pam = {};
   for (let i in obj) {

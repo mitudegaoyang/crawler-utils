@@ -51,7 +51,13 @@ let c = new Crawler({
 
 let start = 1; // 设置起始请求页数
 let num = 1; // 设置请求页数总数
-let host = 'https://www.dytt8.net';
+// let host = 'https://www.dytt89.com';
+// let host = 'https://www.dygod.net';
+// let host = 'https://www.ygdy8.net';
+// let host = 'https://www.dy2018.com';
+let host = 'https://www.dydytt.net';
+// let host = 'https://www.dytt8.com'; 已废弃
+// let host = 'https://www.dytt8.net'; 已废弃
 let urls = [];
 
 for (var i = start; i < num + 1; i++) {

@@ -18,7 +18,7 @@ let formatList = function (res, host) {
       $(`.co_content8 table:nth-child(${i + 1}) font`)
         .text()
         .replace(/\s*/g, '')
-        .replace(/日期\：/g, '')
+        .replace(/日期\：|点击\：0/g, '')
     ).format('YYYY-MM-DD HH:mm:ss');
     // 移除简介
     // item.desc = $(`.co_content8 table:nth-child(${i + 1}) tr:last-child td`).text();
@@ -361,6 +361,8 @@ let formatDetails = function (res) {
         .split('◎')[1]
         .replace(/标签/g, '')
     : '';
+  // 是否重复
+  json.isRepeat = false;
   // 简介
   // json.introduction = '';
   json.introduction = !!$('#Zoom span')

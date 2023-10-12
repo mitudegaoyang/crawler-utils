@@ -118,6 +118,7 @@ let writeFile = (data) => {
     writers: data.writers,
     actor: data.actor,
     tag: '',
+    isRepeat: false,
     introduction: data.introduction
   };
   // 当爬取完毕输出
@@ -141,7 +142,7 @@ let writeFile = (data) => {
 let imdb = 'https://www.imdb.com/title/';
 let douban = 'https://movie.douban.com/subject/';
 
-let doubanId = 1292223;
+let doubanId = 1292853;
 let urls = [`${douban}${doubanId}/`];
 
 c.queue(urls);
