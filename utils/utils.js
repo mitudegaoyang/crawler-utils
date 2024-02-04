@@ -26,7 +26,25 @@ let writeFile = function (json, dirname, filename, isFinished) {
   });
 };
 
+/**
+ *  排序
+ */
+let compare = function (prop, type = 'asc') {
+  return function (obj1, obj2) {
+    var val1 = obj1[prop];
+    var val2 = obj2[prop];
+    if (val1 < val2) {
+      return type === 'asc' ? -1 : 1;
+    } else if (val1 > val2) {
+      return type === 'asc' ? 1 : -1;
+    } else {
+      return 0;
+    }
+  };
+};
+
 module.exports = {
   getProgress,
-  writeFile
+  writeFile,
+  compare
 };

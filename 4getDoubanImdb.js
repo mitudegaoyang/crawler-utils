@@ -142,7 +142,7 @@ let writeFile = (data) => {
 let imdb = 'https://www.imdb.com/title/';
 let douban = 'https://movie.douban.com/subject/';
 
-let doubanId = 1292853;
+let doubanId = 1292260;
 let urls = [`${douban}${doubanId}/`];
 
 c.queue(urls);

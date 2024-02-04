@@ -1,5 +1,5 @@
 /**
- *  获取豆瓣、IMDB评分
+ *  获取单个豆瓣、IMDB评分
  */
 let getDoubanImdb = function (doubanId, cb) {
   let json;
@@ -24,6 +24,7 @@ let getDoubanImdb = function (doubanId, cb) {
         console.log(error);
         console.log(`错误条目${res.options.title}%`);
       } else {
+        console.log(res.request);
         // var $ = res.$;
         // $ 默认为 Cheerio 解析器
         // 它是核心jQuery的精简实现，可以按照jQuery选择器语法快速提取DOM元素
@@ -100,7 +101,109 @@ let getDoubanImdb = function (doubanId, cb) {
 
   return c.queue(urls);
 };
+/**
+ *  获取豆瓣评分
+ */
+let getDoubans = function (datas, cb) {
+  let json;
+  const Crawler = require('crawler');
+  const fs = require('fs');
+  //系统路径模块
+  let path = require('path');
+  const format = require('./format.js');
+  // 临时存储数据
+  let data = {};
+
+  let c = new Crawler({
+    maxConnections: 1,
+    rateLimit: 1000,
+    timeout: 15000,
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N)'
+    },
+    // 在每个请求处理完毕后将调用此回调函数
+    callback: function (error, res, done) {
+      if (error) {
+        // writeFile(data);
+        console.log(error);
+        console.log(`错误条目${res.options.title}%`);
+      } else {
+        // var $ = res.$;
+        // $ 默认为 Cheerio 解析器
+        // 它是核心jQuery的精简实现，可以按照jQuery选择器语法快速提取DOM元素
+        let json = res.options.data;
+        data = format.updateDouban(res, json);
+        cb(data);
+      }
+      done();
+    }
+  });
+
+  // 将一个URL加入请求队列，并使用默认回调函数
+  // c.queue(urlList[num].url);
+  // c.queue([urlList[num].url,urlList[num+1].url,urlList[num+2].url,urlList[num+3].url,urlList[num+4].url]);
+
+  let douban = 'https://movie.douban.com/subject/';
+  let urls = [];
+  datas.map((item) => {
+    urls.push({
+      uri: douban + item.douban_id,
+      data: item
+    });
+  });
+
+  return c.queue(urls);
+};
+/**
+ *  获取IMDB评分
+ */
+let getImdbs = function (datas, cb) {
+  let json;
+  const Crawler = require('crawler');
+  const fs = require('fs');
+  //系统路径模块
+  let path = require('path');
+  const format = require('./format.js');
+
+  let c = new Crawler({
+    maxConnections: 1,
+    rateLimit: 1000,
+    timeout: 15000,
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N)'
+    },
+    // 在每个请求处理完毕后将调用此回调函数
+    callback: function (error, res, done) {
+      if (error) {
+        // writeFile(data);
+        console.log(error);
+        console.log(`错误条目${res.options.title}%`);
+      } else {
+        let json = res.options.data;
+        let jsonTemp = format.updateImdb(res, json);
+        cb(jsonTemp);
+      }
+      done();
+    }
+  });
+
+  // 将一个URL加入请求队列，并使用默认回调函数
+  // c.queue(urlList[num].url);
+  // c.queue([urlList[num].url,urlList[num+1].url,urlList[num+2].url,urlList[num+3].url,urlList[num+4].url]);
+
+  let imdb = 'https://www.imdb.com/title/';
+  let urls = [];
+  datas.map((item) => {
+    urls.push({
+      uri: imdb + item.imdb_id,
+      data: item
+    });
+  });
+  return c.queue(urls);
+};
 
 module.exports = {
-  getDoubanImdb
+  getDoubanImdb,
+  getDoubans,
+  getImdbs
 };
