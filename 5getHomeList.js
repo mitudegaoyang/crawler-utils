@@ -35,9 +35,7 @@ let c = new Crawler({
         if (err) {
           console.log(err);
         } else {
-          if (res.options.key === num) {
-            console.log('文件创建成功~' + file);
-          }
+          console.log('文件创建成功~' + file);
         }
       });
     }

@@ -4,8 +4,12 @@ const dayjs = require('dayjs');
 let path = require('path');
 
 let formatList = require('./json/movieList.json');
+let urlList = require('./json/urlList.json');
 for (i = 0; i < formatList.length; i++) {
-  formatList[i].date = dayjs(formatList[i].date).format('YYYY-MM-DD HH:mm:ss');
+  let { date } = urlList.find((item) => {
+    return item.id === formatList[i].id;
+  });
+  formatList[i].date = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
 }
 // 格式化json
 let text = JSON.stringify(formatList);

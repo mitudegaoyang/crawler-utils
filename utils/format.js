@@ -6,22 +6,44 @@ const base64 = require('./base64.js');
 let formatList = function (res, host) {
   let $ = res.$;
   let json = [];
-  let length = $(`.co_content8 table`).length;
-  for (let i = 0; i < length; i++) {
+  let tables = $(`.co_content8 table`); // 缓存选择结果
+
+  for (let i = 0; i < tables.length; i++) {
+    let $table = $(tables[i]); // 获取当前表格元素
+    let $ulink = $table.find('.ulink'); // 获取链接元素
     let item = {};
-    item.id = $(`.co_content8 table:nth-child(${i + 1}) .ulink`)
-      .attr('href')
-      .replace(/\/|\.|\:|https|www|ygdy8|dytt8|com|net|html|gndy|jddy|yddy|dyzz|.html/g, '');
-    item.title = $(`.co_content8 table:nth-child(${i + 1}) .ulink`).text();
-    item.url = host + $(`.co_content8 table:nth-child(${i + 1}) .ulink`).attr('href');
-    item.date = dayjs(
-      $(`.co_content8 table:nth-child(${i + 1}) font`)
+
+    try {
+      // 提取并清理 ID
+      item.id = $ulink
+        .attr('href')
+        .replace(/\/|\.|\:|https|www|ygdy8|dytt8|com|net|html|gndy|jddy|yddy|dyzz/g, '');
+
+      // 提取标题
+      item.title = $ulink.text();
+
+      // 构建完整 URL
+      item.url = host + $ulink.attr('href');
+
+      // 提取并格式化日期
+      let dateText = $table
+        .find('font')
         .text()
-        .replace(/\s*/g, '')
-        .replace(/日期\：|点击\：0/g, '')
-    ).format('YYYY-MM-DD HH:mm:ss');
-    // 移除简介
-    // item.desc = $(`.co_content8 table:nth-child(${i + 1}) tr:last-child td`).text();
+        .replace(/\s*日期\：/g, '')
+        .replace(/\s*点击\：0/g, '');
+      if (dateText) {
+        item.date = dayjs(dateText).format('YYYY-MM-DD HH:mm:ss');
+      } else {
+        item.date = null; // 或者设定默认值
+      }
+
+      // 可选: 如果需要简介
+      // item.desc = $table.find('tr:last-child td').text();
+    } catch (error) {
+      console.error(`Error processing item ${i}:`, error);
+      continue; // 跳过有问题的条目
+    }
+
     json.push(item);
   }
   return json;
@@ -42,27 +64,32 @@ let formatHomeList = function (res, host, pathNum) {
       path: '.bd2 > .bd3 > div:nth-child(2) > div:nth-child(1) > div > div:nth-child(3) > .co_content8'
     }
   ];
-  let length = $(paths[pathNum].path + ' tr').length;
-  for (let i = 0; i < length; i++) {
-    if ($(`${paths[pathNum].path} tr:nth-child(${i + 1}) a`).length > 1) {
-      let item = {};
-      item.id = $(`${paths[pathNum].path} tr:nth-child(${i + 1}) a:nth-child(2)`)
-        .attr('href')
-        .replace(/\/|\.|\:|https|www|ygdy8|dytt8|com|net|html|gndy|jddy|yddy|dyzz|.html/g, '');
-      item.title = $(`${paths[pathNum].path} table tr:nth-child(${i + 1}) a:nth-child(2)`).text();
-      item.url =
-        host + $(`${paths[pathNum].path} table tr:nth-child(${i + 1}) a:nth-child(2)`).attr('href');
-      item.date = dayjs(
-        $(`${paths[pathNum].path} table tr:nth-child(${i + 1}) font`)
-          .text()
-          .replace(/\s*/g, '')
-          .replace(/日期\：|点击\：0/g, '')
-      ).format('YYYY-MM-DD HH:mm:ss');
-      //   // 移除简介
-      //   // item.desc = $(`.co_content8 table:nth-child(${i + 1}) tr:last-child td`).text();
-      json.push(item);
+  let getMovies = (pathNum) => {
+    let length = $(paths[pathNum].path + ' tr').length;
+    for (let i = 0; i < length; i++) {
+      if ($(`${paths[pathNum].path} tr:nth-child(${i + 1}) a`).length > 1) {
+        let item = {};
+        item.id = $(`${paths[pathNum].path} tr:nth-child(${i + 1}) a:nth-child(2)`)
+          .attr('href')
+          .replace(/\/|\.|\:|https|www|ygdy8|dytt8|com|net|html|gndy|jddy|yddy|dyzz|.html/g, '');
+        item.title = $(`${paths[pathNum].path} table tr:nth-child(${i + 1}) a:nth-child(2)`).text();
+        item.url =
+          host +
+          $(`${paths[pathNum].path} table tr:nth-child(${i + 1}) a:nth-child(2)`).attr('href');
+        item.date = dayjs(
+          $(`${paths[pathNum].path} table tr:nth-child(${i + 1}) font`)
+            .text()
+            .replace(/\s*/g, '')
+            .replace(/日期\：|点击\：0/g, '')
+        ).format('YYYY-MM-DD HH:mm:ss');
+        //   // 移除简介
+        //   // item.desc = $(`.co_content8 table:nth-child(${i + 1}) tr:last-child td`).text();
+        json.push(item);
+      }
     }
-  }
+  };
+  getMovies(0);
+  getMovies(1);
   return json;
 };
 /**
@@ -335,12 +362,14 @@ let formatDetails = function (res) {
     .text()
     .replace(/\s*/g, '')
     .match(/◎片长[\s\S]*[◎]/g)
-    ? $('#Zoom span')
-        .text()
-        .replace(/\s*/g, '')
-        .match(/◎片长[\s\S]*[◎]/g)[0]
-        .split('◎')[1]
-        .replace(/片长|分钟|Minutes|Mins|Min|mins|min/g, '')
+    ? parseInt(
+        $('#Zoom span')
+          .text()
+          .replace(/\s*/g, '')
+          .match(/◎片长[\s\S]*[◎]/g)[0]
+          .split('◎')[1]
+          .replace(/片长|分钟|Minutes|Mins|Min|mins|min/g, '')
+      )
     : '';
   // 导演
   json.director = !!$('#Zoom span')
@@ -591,12 +620,11 @@ let updateDouban = function (res, data) {
     json.douban_user = $('.rating_self .rating_right .rating_sum span').text() || '0';
     // 补足信息
     json.img =
-      json.img ||
       'https://img9.doubanio.com/view/photo/l_ratio_poster/public/p' +
         $('#mainpic img')
           .attr('src')
-          ?.split(/\/public\/p|.jpg/)[1] +
-        '.jpg';
+          ?.split(/\/public\/p|.jpg|.webp/)[1] +
+        '.jpg' || json.img;
     json.imdb_id =
       json.imdb_id ||
       ($('#info')

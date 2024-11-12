@@ -18,6 +18,7 @@ let getMovies = function () {
     data.imdb = data.imdb || e.imdb;
     data.imdb_user = data.imdb_user || e.imdb_user;
     data.douban_id = data.douban_id || e.douban_id;
+    data.img = e.img || data.img;
     data.douban = e.douban || data.douban;
     data.douban_user = e.douban_user || data.douban_user;
     data.director = data.director || e.director;

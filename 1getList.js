@@ -4,17 +4,19 @@ const fs = require('fs');
 let path = require('path');
 const format = require('./utils/format.js');
 const utils = require('./utils/utils.js');
+const config = require('./config.js');
+
 // 临时存储数据
 let datas = [];
 
+// 创建Crawler实例
 let c = new Crawler({
   maxConnections: 1,
   followRedirect: false,
   // 在每个请求处理完毕后将调用此回调函数
   callback: function (error, res, done) {
     if (error) {
-      console.log(error);
-      console.log(`错误条目${res.options.title}%`);
+      console.log(`错误条目${res.options.uri}:`, error);
     } else {
       // var $ = res.$;
       // $ 默认为 Cheerio 解析器
@@ -24,57 +26,60 @@ let c = new Crawler({
       datas = [...datas, ...json];
       let progress = utils.getProgress(res.options.key, num);
       console.log(`进度${progress}%`);
-      // 当爬取完毕输出
-      let text = JSON.stringify(datas);
-
-      // 指定要创建的目录和文件名称 __dirname为执行当前js文件的目录
-      let file = path.join(__dirname + '/json', 'urlList.json');
-
-      //写入文件
-      fs.writeFile(file, text, function (err) {
-        if (err) {
-          console.log(err);
-        } else {
-          if (res.options.key === num) {
-            console.log('文件创建成功~' + file);
-          }
-        }
-      });
     }
     done();
   }
 });
 
-// 将一个URL加入请求队列，并使用默认回调函数
-// c.queue(urlList[num].url);
-// c.queue([urlList[num].url,urlList[num+1].url,urlList[num+2].url,urlList[num+3].url,urlList[num+4].url]);
+// 完成所有请求后的回调
+c.on('drain', () => {
+  // 将数据写入文件
+  const text = JSON.stringify(datas, null, 2); // 格式化JSON输出
+  const file = path.join(__dirname, 'json', 'urlList.json');
 
+  fs.writeFile(file, text, (err) => {
+    if (err) {
+      console.error('写入文件时出错:', err);
+    } else {
+      console.log('文件创建成功:', file);
+    }
+  });
+});
+
+// 生成URI的函数
+function generateUri(host, type, page) {
+  return `${host}${type}${page}.html`;
+}
+
+// 从命令行参数获取配置
+const args = process.argv.slice(2);
+const typeKey = args[0] || 't1'; // 默认使用 dyzz (t1)
+const hostKey = args[1] || 'h1'; // 默认使用 dydytt (h1)
+
+// 解析简写的别名
+const getRealKey = (alias, keyType) => {
+  const realKey = config.aliases[alias];
+  if (!realKey) {
+    console.error(`未知的${keyType}别名: ${alias}`);
+    process.exit(1);
+  }
+  return realKey;
+};
+
+const host = config.hosts[getRealKey(hostKey, '主机')];
+const uriType = config.types[getRealKey(typeKey, '类型')];
+
+// 配置爬虫参数
 let start = 1; // 设置起始请求页数
-let num = 1; // 设置请求页数总数
-// let host = 'https://www.dytt89.com';
-// let host = 'https://www.dygod.net';
-// let host = 'https://www.ygdy8.net';
-// let host = 'https://www.dy2018.com';
-let host = 'https://www.dydytt.net';
-// let host = 'https://www.dytt8.com'; 已废弃
-// let host = 'https://www.dytt8.net'; 已废弃
+let num = 4; // 设置请求页数总数
 let urls = [];
 
-for (var i = start; i < num + 1; i++) {
-  let item = {};
-  item.key = i;
-  // new
-  item.uri = host + '/html/gndy/dyzz/list_23_' + i + '.html';
-  // other
-  // item.uri = host + '/html/gndy/jddy/list_63_' + i + '.html';
-  urls.push(item);
+for (let i = start; i <= num; i++) {
+  urls.push({
+    key: i,
+    uri: generateUri(host, uriType, i)
+  });
 }
 c.queue(urls);
-
-// let url = base64.ThunderEncode("ftp");
-// console.log(url)
-
-// 将多个URL加入请求队列
-// c.queue(['http://www.google.com/', 'http://www.yahoo.com']);
 
 console.log('---------------开始爬取---------------');
